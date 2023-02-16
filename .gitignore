@@ -1,0 +1,22 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+
+#old code
+**old stuff
+**Exploratory
+
+
+#confidential files
+*CAS*
+*confidential*
+*S_pacificus_size_summary*
+*Sleeper_counts*
+*Sleeper_lengths*
+*NORPAC*
+
+#Other files not necessary to commit
+**DFO
+**Figures
