@@ -142,7 +142,7 @@ ADFG_PWS <- ADFG_PWS %>%
   as.data.frame()
 
 
-# ..DFO Sablefish Pot-----------------------------------------------------------------
+# ..DFO Sablefish Pot  (FINALIZE THIS SECTION)-----------------------------------------------------------------
 
 sablefishtrapsurvey <- readRDS("Data/DFO_Linsday_Jan2023/SleeperSablefishCatch_ver2.rds")
 
@@ -171,7 +171,7 @@ sablesleepersum <-sablesleeper_INLET %>%
 ggplot(sablesleepersum, aes(year, sum, group = reason_desc,  col = reason_desc))+
   geom_line(size = 2) + geom_point() + theme_pubr(legend = "none")
 
-ggplot(DFO_POT, aes(year, index))+
+ggplot(DFO_POT, aes(year, index))+  #this is the old CPUE data (3 surveys)
   geom_line(size = 2) + geom_point() + theme_pubr(legend = "none")
 
 ###USE THIS DATA if you want to show the data from the one survey with almost all of the catches
