@@ -142,9 +142,16 @@ ADFG_PWS <- ADFG_PWS %>%
   as.data.frame()
 
 
-# ..DFO Sablefish Pot  (FINALIZE THIS SECTION)-----------------------------------------------------------------
+# ..DFO Sablefish Pot  -----------------------------------------------------------------
 
-sablefishtrapsurvey <- readRDS("Data/DFO_Linsday_Jan2023/SleeperSablefishCatch_ver2.rds")
+sablefishtrapsurvey <- readRDS("Data/DFO_Lindsay_Feb2023/SleeperSablefishCPUE_230221.rds") %>%
+  group_by(survey_series_id, year) %>%
+  summarize(sumtraps = sum(traps_fished_count, na.rm = TRUE),
+            sumcatch = sum(catch_count, na.rm = TRUE),
+            .groups = "drop") %>%
+  mutate(cpue = sumcatch / sumtraps) %>% 
+  filter(survey_series_id==41)  #show standardized inlet survey only
+
 
 #create scaled index and prepare data for combination with other datasets
 DFO_POT <- sablefishtrapsurvey %>% 
@@ -157,26 +164,6 @@ DFO_POT <- sablefishtrapsurvey %>%
          gear = "pot",
          index_type = "CPUE") %>% 
   as.data.frame()
-
-
-###NEW CODE FEB 14
-sablesleeper <- readRDS("Data/DFO_Lindsay_Feb2023/sablefish_forBeth.rds")
-
-sablesleeper_INLET <- filter(sablesleeper,
-                             reason_desc == "SABLEFISH STANDARDIZED INLET SURVEY")
-sablesleepersum <-sablesleeper_INLET %>%
-  group_by(year, reason_desc) %>%
-  summarize(sum = sum(catch_count))
-
-ggplot(sablesleepersum, aes(year, sum, group = reason_desc,  col = reason_desc))+
-  geom_line(size = 2) + geom_point() + theme_pubr(legend = "none")
-
-ggplot(DFO_POT, aes(year, index))+  #this is the old CPUE data (3 surveys)
-  geom_line(size = 2) + geom_point() + theme_pubr(legend = "none")
-
-###USE THIS DATA if you want to show the data from the one survey with almost all of the catches
-
-
 
 
 # ..Combined survey indices --------------------------------------------------
