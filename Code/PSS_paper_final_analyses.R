@@ -144,14 +144,8 @@ ADFG_PWS <- ADFG_PWS %>%
 
 # ..DFO Sablefish Pot  -----------------------------------------------------------------
 
-sablefishtrapsurvey <- readRDS("Data/DFO_Lindsay_Feb2023/SleeperSablefishCPUE_230221.rds") %>%
-  group_by(survey_series_id, year) %>%
-  summarize(sumtraps = sum(traps_fished_count, na.rm = TRUE),
-            sumcatch = sum(catch_count, na.rm = TRUE),
-            .groups = "drop") %>%
-  mutate(cpue = sumcatch / sumtraps) %>% 
-  filter(survey_series_id==41)  #show standardized inlet survey only
-
+#Standardized Sablefish Inlet Trap Survey
+sablefishtrapsurvey <- read.csv("Data/SleeperSablefishCPUE_230221_BC.csv")
 
 #create scaled index and prepare data for combination with other datasets
 DFO_POT <- sablefishtrapsurvey %>% 
@@ -164,6 +158,7 @@ DFO_POT <- sablefishtrapsurvey %>%
          gear = "pot",
          index_type = "CPUE") %>% 
   as.data.frame()
+
 
 
 # ..Combined survey indices --------------------------------------------------
@@ -321,19 +316,10 @@ ggsave(path = "Figures/Manuscript_version", filename = "Fig3.tiff",
 # FIGURE 4. Catch by gear Canada---------------------------------------
 #Data from Lindsay (DFO)
 #Trawl sectors are mostly reported in kg, other sections in pcs (numbers)
-commcatch3 <- readRDS("Data/DFO_Linsday_Jan2023/Sleepercommcatch.rds") # commercial catch for trawl, longline
-commcatch3$gear <- recode(commcatch3$gear, TRAP = "POT")
+commcatch <- read.csv("Data/Sleepercommcatch_summarised_BC.csv") # commercial catch in BC
+commcatch$gear <- recode(commcatch$gear, TRAP = "POT")
 
-comcatch_sum <- commcatch3 %>%
-  group_by(year, gear) %>%
-  summarise(
-    discarded_pcs_yearsum = sum(discarded_pcs),
-    landed_pcs_yearsum = sum(landed_pcs),
-    discarded_kg_yearsum = sum(discarded_kg),
-    landed_kg_yearsum = sum(landed_kg)
-  )
-
-canada.catch <- comcatch_sum %>% 
+canada.catch <- commcatch %>% 
   group_by(year, gear) %>% 
   mutate(tot_catch_kg = sum(discarded_kg_yearsum, landed_kg_yearsum),
          tot_catch_t = tot_catch_kg/1000,
