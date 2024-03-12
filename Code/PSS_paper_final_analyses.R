@@ -14,6 +14,7 @@ library(nlstools)
 
 
 
+
 # FIGURE 2. Survey index timeseries ---------------------------------------
 
 # ..IPHC Longline------------------------------------------------------------------
@@ -226,14 +227,32 @@ combo.survey.plot.index <- ggplot(combo_surveys, aes(year, index, group=survey, 
              x.text.angle = 45) +
   theme(axis.text.y = element_blank())
 
+#Redraw figure with axes, rearrange panels to fit on page
+combo.survey.plot.index.labels <- ggplot(combo_surveys, 
+                                  aes(year, index, group=survey, color=survey, shape=survey)) +
+  facet_wrap(~survey, scales = "free_y", ncol=3) +
+  geom_point() +
+  geom_line() +
+  labs(x="Year", y="Survey index") +
+  scale_color_manual(values=colscombo,
+                     name="Survey",
+                     labels=levels(combo_surveys$survey)) +
+  scale_shape_manual(values=1:12,
+                     name="Survey",
+                     labels=levels(combo_surveys$survey)) +
+  theme_pubr(border = TRUE,
+             legend = "none",
+             x.text.angle = 45,
+             base_size = 10)
+
 #Manuscript version
 ggsave(path = "Figures/Manuscript_version", filename = "Fig2.tiff", 
        plot = combo.survey.plot.index, dpi = 600, units="mm", width = 174, height = 125, bg="transparent")
 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig2_updated.tiff", 
+       plot = combo.survey.plot.index.labels, dpi = 600, units="mm", width = 174, height = 125, bg="transparent")
 
-ggplot(combo_surveys, aes(year, norm_index, color=survey)) +
-  facet_grid(region~.) +
-  geom_point()+ geom_line()
+
 
 
 # FIGURE 3. Fishery map---------------------------------------------------------------
@@ -281,6 +300,16 @@ PSScatchmap <- PSScatchmap %>%
   mutate(Tons_total=Kilos_total/1000,
          Tons_avg=Kilos_avg/1000)
 
+#Add places
+places <- data.frame(regions = c("Bering Sea", "Gulf of Alaska", 
+                                 "Russia", "Alaska", "Canada", "Aleutian Islands"),
+                     lat = c(56, 55, 
+                             61, 63, 61, 52),
+                     long = c(-182, -150,
+                              -192, -155, -135, -180),
+                     face = c("italic", "italic",
+                              "plain", "plain", "plain", "plain"))
+
 #show total catch per grid cell (1997-2021)
 PSS_catchmap_plot <- 
   ggplot() +
@@ -300,6 +329,7 @@ PSS_catchmap_plot <-
   coord_map(projection = "albers",lat0=40, lat1=55,
             xlim = c(min(PSScatchmap$Long), max(PSScatchmap$Long)),
             ylim = c(min(PSScatchmap$Lat), max(PSScatchmap$Lat)))+
+  geom_text(data=places, aes(x=long, y=lat, label=regions, fontface=face), hjust=0, vjust=0) +
   theme_bw() +
   theme(legend.position = "top",
         axis.title = element_blank(),
@@ -309,7 +339,7 @@ PSS_catchmap_plot <-
         rect = element_rect(fill = "transparent"))
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig3.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig3_updated.tiff", 
        plot = PSS_catchmap_plot, dpi = 600, units="mm", width = 174, height = 90, bg="transparent")
 
 
@@ -501,10 +531,13 @@ ggsave(path = "Figures/Manuscript_version", filename = "Fig6.tiff",
 
 # FIGURE 7. Males vs females ----------------------------------------------
 #From stock assessments
-#Updated in 2020
+#Updated in 2024
 
 #Read and prepare length data
-PSSlengths <- read.csv("Data/Sleeper_lengths_coast2020.csv")
+#PSSlengths <- read.csv("Data/Sleeper_lengths_coast2020.csv") #original data file
+PSSlengths <- read.csv("Data/Sleeper_lengths_coast2023.csv") #updated for paper revisions
+PSSlengths$FMP <- as.factor(PSSlengths$FMP)
+levels(PSSlengths$FMP)[levels(PSSlengths$FMP)=="SEAK"] <- "GOA" #group southeast with GOA
 PSSlengths$FMP<-factor(PSSlengths$FMP,levels=c("BS","AI","GOA","BC","WC"))
 colsarea<-c("BS"="#e64b35", "AI"="#4dbbd5", "GOA"="#efc000", "BC"="#00a087", "WC"="#3c5488")
 
@@ -538,7 +571,7 @@ lengthsex <- ggplot(filter(PSSlengths, Sex!="Unknown"), aes(x=TLcm, fill=Sex)) +
   geom_density(color="black", alpha=0.3) +
   labs(x="Total Length (cm)", y="Density") +
   scale_fill_manual(values = c("#0073cf", "#b8023e"),
-                    labels = c("Male (n=637)", "Female (n=750)")) +
+                    labels = c("Male (n=712)", "Female (n=850)")) +
   theme_pubr(base_size = 10) +
   theme(legend.position=c(0.8,0.8),
         axis.title.x = element_text(vjust = -1),
@@ -580,7 +613,7 @@ combo_ratio_density <-
   plot_layout(design = layout)
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig7.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig7_updated.tiff", 
        plot = combo_ratio_density, dpi = 600, units="mm", width = 174, height = 100, bg="transparent")
 
 
@@ -590,6 +623,7 @@ ggsave(path = "Figures/Manuscript_version", filename = "Fig7.tiff",
 meanTLcm.area <- PSSlengths %>% 
   group_by(FMP) %>% 
   summarise(mean = mean(TLcm),
+            median = median(TLcm),
             count = n())
 
 #Histograms with mean size, length by region
@@ -601,13 +635,13 @@ PSS.lengths.histo <- ggplot(PSSlengths, aes(x=TLcm, fill=FMP)) +
   geom_vline(xintercept = 370, #estimated size at maturity from Ebert et al. (1987)
              linetype = "dashed", size = 1) +
   scale_fill_manual(values = colsarea) +
-  labs(x="Total Length (cm)", y="Number of sharks\n") +
+  labs(x="Total Length (cm)", y="Number of sharks") +
   theme_pubr(base_size = 12, legend="none", border=TRUE) +
   theme(axis.title.x = element_text(vjust = -1),
         axis.title.y = element_text(vjust = 2))
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig8.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig8_updated.tiff", 
        plot = PSS.lengths.histo, dpi = 600, units="mm", width = 174, height = 174, bg="transparent")
 
 
