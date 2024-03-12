@@ -23,7 +23,7 @@ names(IPHC) <- tolower(names(IPHC))
 IPHC<-IPHC[IPHC$area_combo=="FMP (without Inside waters)" & IPHC$species == "Sleeper shark",] #same data as in assessment
 IPHC$area <- as.factor(IPHC$area)
 
-#create scaled index and prepare data for combination with other datasets
+#create scaled index (not used) and prepare data for combination with other datasets
 IPHC <- IPHC %>% 
   group_by(area) %>% 
   mutate(norm_index = scale(area_cpue)) %>% 
@@ -42,7 +42,7 @@ RACE <- read.csv("Data/RACE_Biomass_Sharks.csv")
 RACE <- RACE[RACE$Group == "Pacific Sleeper Shark",]
 RACE <- RACE[RACE$SURVEY == RACE$REGULATORY_AREA_NAME,]
 
-#create scaled index and prepare data for combination with other datasets
+#create scaled index (not used) and prepare data for combination with other datasets
 RACE <- RACE %>% 
   group_by(SURVEY) %>% 
   mutate(norm_index = scale(Biomass)) %>% 
@@ -60,7 +60,7 @@ RACE <- read.csv("Data/RACE_Biomass_Sharks2022.csv")
 RACE <- RACE[RACE$Group == "Pacific Sleeper Shark",]
 RACE <- RACE[RACE$SURVEY == RACE$REGULATORY_AREA_NAME,]
 
-#create scaled index and prepare data for combination with other datasets
+#create scaled index (not used) and prepare data for combination with other datasets
 RACE <- RACE %>% 
   group_by(SURVEY) %>% 
   filter(SURVEY != "NBS") %>% 
@@ -82,7 +82,7 @@ AFSC_LL <- AFSC_LL[AFSC_LL$Species.Code==320,]
 AFSC_LL[AFSC_LL == 0 & AFSC_LL$FMP=="BSAI" & AFSC_LL$Year !=2017] <- NA  #Replace zero values for non-survey years with NA (need to check these are correct)
 AFSC_LL <- na.omit(AFSC_LL)
 
-#create scaled index and prepare data for combination with other datasets
+#create scaled index (not used) and prepare data for combination with other datasets
 AFSC_LL <- AFSC_LL %>% 
   group_by(FMP) %>% 
   mutate(norm_index = scale(sumRPN)) %>% 
@@ -109,7 +109,7 @@ ADFG_SEAK <- ADFG_SEAK %>%
             toteffhks=Tot_hks-ineff_hks, 
             PSS=sum(PSS_no),
             CPUE_PSS=PSS/toteffhks) #calculate CPUE (from assessment)
-#create scaled index and prepare data for combination with other datasets
+#create scaled index (not used) and prepare data for combination with other datasets
 ADFG_SEAK <- ADFG_SEAK %>% 
   mutate(norm_index = scale(CPUE_PSS),
          area = "GOA") %>% 
@@ -129,7 +129,7 @@ ADFG_PWS <- reshape2::melt(ADFG_PWS[,c("Year","pkEvent_ID","Sleeper_Shark")], id
 ADFG_PWS <- ADFG_PWS %>% 
   group_by(Year) %>% 
   summarise(avgCPUE = mean(value))
-#create scaled index and prepare data for combination with other datasets
+#create scaled index (not used) and prepare data for combination with other datasets
 ADFG_PWS <- ADFG_PWS %>% 
   mutate(norm_index = scale(avgCPUE),
          area = "GOA") %>%
@@ -148,7 +148,7 @@ ADFG_PWS <- ADFG_PWS %>%
 #Standardized Sablefish Inlet Trap Survey
 sablefishtrapsurvey <- read.csv("Data/SleeperSablefishCPUE_230221_BC.csv")
 
-#create scaled index and prepare data for combination with other datasets
+#create scaled index (not used) and prepare data for combination with other datasets
 DFO_POT <- sablefishtrapsurvey %>% 
   mutate(norm_index = scale(cpue),
          area = "CAN") %>%
@@ -211,24 +211,7 @@ colscombo <- c("NOAA BS Shelf (T)"="#e64b35",
                "IPHC WC (LL)"="#3c5488")
 
 #Survey indices (panel for each survey, not normalized)
-combo.survey.plot.index <- ggplot(combo_surveys, aes(year, index, group=survey, color=survey, shape=survey)) +
-  facet_wrap(~survey, scales = "free_y") +
-  geom_point() +
-  geom_line() +
-  labs(x="Year", y="Survey index\n") +
-  scale_color_manual(values=colscombo,
-                     name="Survey",
-                     labels=levels(combo_surveys$survey)) +
-  scale_shape_manual(values=1:12,
-                     name="Survey",
-                     labels=levels(combo_surveys$survey)) +
-  theme_pubr(border = TRUE,
-             legend = "none",
-             x.text.angle = 45) +
-  theme(axis.text.y = element_blank())
-
-#Redraw figure with axes, rearrange panels to fit on page
-combo.survey.plot.index.labels <- ggplot(combo_surveys, 
+combo.survey.plot.index <- ggplot(combo_surveys, 
                                   aes(year, index, group=survey, color=survey, shape=survey)) +
   facet_wrap(~survey, scales = "free_y", ncol=3) +
   geom_point() +
@@ -248,10 +231,6 @@ combo.survey.plot.index.labels <- ggplot(combo_surveys,
 #Manuscript version
 ggsave(path = "Figures/Manuscript_version", filename = "Fig2.tiff", 
        plot = combo.survey.plot.index, dpi = 600, units="mm", width = 174, height = 125, bg="transparent")
-
-ggsave(path = "Figures/Manuscript_version", filename = "Fig2_updated.tiff", 
-       plot = combo.survey.plot.index.labels, dpi = 600, units="mm", width = 174, height = 125, bg="transparent")
-
 
 
 
@@ -339,11 +318,11 @@ PSS_catchmap_plot <-
         rect = element_rect(fill = "transparent"))
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig3_updated.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig3.tiff", 
        plot = PSS_catchmap_plot, dpi = 600, units="mm", width = 174, height = 90, bg="transparent")
 
 
-# FIGURE 4. Catch by gear Canada---------------------------------------
+# FIGURE 11. Catch by gear Canada---------------------------------------
 #Data from Lindsay (DFO)
 #Trawl sectors are mostly reported in kg, other sections in pcs (numbers)
 commcatch <- read.csv("Data/Sleepercommcatch_summarised_BC.csv") # commercial catch in BC
@@ -383,12 +362,12 @@ canada.catch.plot <- trawl / nontrawl +
   plot_layout(guides = "collect")
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig4.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig11.tiff", 
        plot = canada.catch.plot, dpi = 600, units="mm", width = 174, height = 125, bg="transparent")
 
 
 
-# FIGURE 5. Catch by target fishery AK---------------------------------------
+# FIGURE 12. Catch by target fishery AK---------------------------------------
 #Data contains confidential information that cannot be shared
 
 #Load/prep data (updated 8/8/2022)
@@ -455,14 +434,13 @@ combo.plot.target <-
   plot_annotation(tag_levels = 'a', 
                   theme = theme(axis.title = element_text(size = 8)))
 
-ggsave(path = "Figures", filename = "combo catch target.png", 
-       plot = combo.plot.target, dpi = 600, height=8.5)
+
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig5.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig12.tiff", 
        plot = combo.plot.target, dpi = 600, units="mm", width=174, height=210, bg="transparent")
 
 
-# FIGURE 6. Length conversions --------------------------------------------
+# FIGURE 4. Length conversions --------------------------------------------
 
 #Data from Cindy
 #includes more info on estimated and measured metrics (fewer records than full length dataset)
@@ -525,13 +503,13 @@ length_reg <- TL_PCL_lm / TL_FL_lm +
   plot_annotation(tag_levels = 'a')
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig6.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig4.tiff", 
        plot = length_reg, dpi = 600, units="mm", width = 84, bg="transparent")
 
 
-# FIGURE 7. Males vs females ----------------------------------------------
+# FIGURE 5. Males vs females ----------------------------------------------
 #From stock assessments
-#Updated in 2024
+#Updated in 2024 (data through 2023, includes more recent catches)
 
 #Read and prepare length data
 #PSSlengths <- read.csv("Data/Sleeper_lengths_coast2020.csv") #original data file
@@ -601,7 +579,7 @@ piechart_sex_FMP <- ggplot(data = sexratio, aes(x = "", y = freq, fill = Sex)) +
         strip.text = element_text(size=12))
 
 
-# ..Combo plot Fig. 7 -----------------------------------------------------
+# ..Combo plot Fig. 5 -----------------------------------------------------
 #Add sex ratio piechart to length density plot
 layout <- c(
   area(t = 1, l = 1, b = 6, r = 5),
@@ -613,11 +591,12 @@ combo_ratio_density <-
   plot_layout(design = layout)
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig7_updated.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig5.tiff", 
        plot = combo_ratio_density, dpi = 600, units="mm", width = 174, height = 100, bg="transparent")
 
 
-# FIGURE 8. Length distributions by region --------------------------------
+# FIGURE 6. Length distributions by region --------------------------------
+#Updated in 2024 (data through 2023, includes more recent catches)
 
 #Calculate mean size by region
 meanTLcm.area <- PSSlengths %>% 
@@ -641,11 +620,11 @@ PSS.lengths.histo <- ggplot(PSSlengths, aes(x=TLcm, fill=FMP)) +
         axis.title.y = element_text(vjust = 2))
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig8_updated.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig6.tiff", 
        plot = PSS.lengths.histo, dpi = 600, units="mm", width = 174, height = 174, bg="transparent")
 
 
-# FIGURE 9. Length-weight relationship ------------------------------------
+# FIGURE 7. Length-weight relationship ------------------------------------
 
 #subset the size summary file, measured weights only and get rid of TL NA values
 Wt_meas <- subset(length2, Weight_type == "measure")
@@ -663,7 +642,7 @@ NORPAC_LW$Sex <- recode(NORPAC_LW$Sex, M=1, F=2, U=3)
 Wt_meas <- full_join(Wt_meas, NORPAC_LW)
 
 
-# ..Figure 9a panel -------------------------------------------------------
+# ..Figure 7a panel -------------------------------------------------------
 
 #Do linear fits (ln transform length and weight)
 #Remove two obvious outliers
@@ -697,7 +676,7 @@ matrix_coef <- summary(lnLW.fit)$coefficients
 our_data <- function(x){exp(matrix_coef[1,1]) * (x^matrix_coef[2,1])} #transform a parameter back to kg
 
 
-# ..Figure 9b panel -------------------------------------------------------
+# ..Figure 7b panel -------------------------------------------------------
 
 #create functions to overlay known PSS curves
 #if units for weight were grams in their analysis, I divided "a" by 1000 to change to kg
@@ -732,6 +711,6 @@ LW.relps <- lnLW.sex / LW.curves +
   plot_annotation(tag_levels = 'a')
 
 #Manuscript version
-ggsave(path = "Figures/Manuscript_version", filename = "Fig9.tiff", 
+ggsave(path = "Figures/Manuscript_version", filename = "Fig7.tiff", 
        plot = LW.relps, dpi = 600, units="mm", width = 84, height = 150, bg="transparent")
 
