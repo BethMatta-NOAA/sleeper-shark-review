@@ -79,7 +79,7 @@ RACE <- RACE %>%
 # ..AFSC Longline ----------------------------------------------------------------------
 AFSC_LL <- read.csv("Data/AFSCLL_RPN2021.csv")
 AFSC_LL <- AFSC_LL[AFSC_LL$Species.Code==320,]
-AFSC_LL[AFSC_LL == 0 & AFSC_LL$FMP=="BSAI" & AFSC_LL$Year !=2017] <- NA  #Replace zero values for non-survey years with NA (need to check these are correct)
+AFSC_LL[AFSC_LL == 0 & AFSC_LL$FMP=="BSAI" & AFSC_LL$Year !=2017] <- NA  #Replace zero values for non-survey years with NA
 AFSC_LL <- na.omit(AFSC_LL)
 
 #create scaled index (not used) and prepare data for combination with other datasets
